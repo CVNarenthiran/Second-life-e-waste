@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Second Life turns unused electronics into useful resources.">
+  <title>Second Life | Give tech another future</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="device-art.css">
+  <link rel="stylesheet" href="workspace.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet@2.1.1/dist/mobilenet.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="Second Life home">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span>second<span class="brand-accent">life</span></span>
+    </a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a class="active" href="#scan">Scan an item</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#impact">Our impact</a>
+      <a href="#workspace">Workspace</a>
+    </nav>
+    <button class="text-button" id="aboutButton" type="button">About the project <span aria-hidden="true">↗</span></button>
+  </header>
+
+  <main id="top">
+    <section class="hero" id="scan">
+      <div class="hero-copy reveal">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> Tech for a better tomorrow</p>
+        <h1>Every device<br>deserves a <em>second life.</em></h1>
+        <p class="hero-lede">Turn forgotten electronics into useful parts, local opportunities, and fewer things in landfill.</p>
+        <div class="impact-strip" aria-label="E-waste collection statistics">
+          <div><strong>62M<span>t</span></strong><small>e-waste generated<br>globally in 2022</small></div>
+          <div class="strip-rule"></div>
+          <div><strong>22.3<span>%</span></strong><small>formally collected<br>and recycled</small></div>
+        </div>
+      </div>
+
+      <div class="scan-panel reveal delay-1">
+        <div class="panel-topline"><span>01 / Identify your item</span><span class="live-status" id="modelStatus"><i></i> On-device model readying</span></div>
+        <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload a photo of your device">
+          <div class="upload-visual" aria-hidden="true"><span class="upload-ring"></span><span class="upload-icon">↑</span></div>
+          <h2>Drop a photo here</h2>
+          <p>or choose an image from your device</p>
+          <button class="upload-button" id="uploadButton" type="button"><span aria-hidden="true">+</span> Upload photo</button>
+          <input id="fileInput" type="file" accept="image/*" hidden>
+          <div class="supported">JPG, PNG or HEIC <span>·</span> Max 10MB</div>
+        </div>
+        <div class="sample-row"><span>Try a sample</span><button class="sample-chip" data-device="phone" type="button"><span>▣</span> Smartphone</button><button class="sample-chip" data-device="laptop" type="button"><span>▱</span> Laptop</button><button class="sample-chip" data-device="console" type="button"><span>◈</span> Game console</button><button class="sample-chip" data-device="tablet" type="button"><span>▤</span> Tablet</button><button class="sample-chip" data-device="camera" type="button"><span>◉</span> Camera</button><button class="sample-chip" data-device="watch" type="button"><span>◌</span> Smartwatch</button><button class="sample-chip" data-device="printer" type="button"><span>▰</span> Printer</button></div>
+      </div>
+    </section>
+
+    <section class="result-section" id="result" aria-live="polite">
+      <div class="result-heading"><div><p class="eyebrow">Your item report</p><h2>Here’s what we found.</h2><small class="model-evidence" id="modelEvidence">Demo catalog classification</small></div><span class="confidence" id="confidence">AI confidence 94%</span></div>
+      <div class="result-grid">
+        <div class="device-card">
+          <div class="device-image" id="deviceImage"><span class="image-label">SCAN COMPLETE</span><div class="device-illustration phone-art"><span class="phone-screen"></span></div><img id="uploadedImage" alt="Uploaded device photo" hidden></div>
+          <div class="device-card-info"><div><span class="tiny-label">IDENTIFIED DEVICE</span><h3 id="deviceName">Smartphone</h3></div><button class="re-scan" id="rescanButton" type="button">Scan another <span>↗</span></button></div>
+        </div>
+        <div class="parts-panel"><div class="parts-header"><div><span class="tiny-label">SALVAGE VALUE</span><h3>Keep these in circulation</h3></div><span class="value-pill" id="valuePill">High value</span></div><div class="parts-list" id="partsList"></div><div class="parts-foot"><span id="salvageNote">4 components worth saving</span><strong id="estimatedValue">Est. value <b>$68</b></strong></div></div>
+      </div>
+      <div class="before-after"><div><span class="tiny-label">BEFORE</span><strong id="beforeLabel">Broken device in your hands</strong><small>Photo captured locally for this scan</small></div><span class="before-after-arrow">→</span><div><span class="tiny-label">AFTER</span><strong id="afterLabel">Parts routed to a useful home</strong><small id="afterDetail">Reuse first, recycle what remains.</small></div></div>
+      <div class="destination-wrap"><div class="destination-header"><div><p class="eyebrow">Best next step</p><h2>Choose where it goes.</h2></div><div class="location-actions"><button class="location-button" type="button" id="locationButton"><span>⌖</span> Use my location</button><small id="locationStatus" role="status">Showing demo destinations near Brooklyn</small></div></div><div class="destination-list" id="destinationList"></div><div class="component-routing"><div class="routing-heading"><div><p class="eyebrow">Component routing</p><h2>One item. Many useful futures.</h2></div><span id="routingSummary">Every salvageable part gets its own destination.</span></div><div class="routing-list" id="routingList"></div></div></div>
+    </section>
+
+    <section class="how-section" id="how-it-works"><div class="section-heading"><p class="eyebrow">A simple loop</p><h2>From clutter to contribution.</h2></div><div class="steps"><article><span class="step-number">01</span><h3>Snap</h3><p>Show us what’s gathering dust. Our demo model spots the device type.</p></article><article><span class="step-number">02</span><h3>Save</h3><p>See what’s still useful inside, from a display to a perfectly good battery.</p></article><article><span class="step-number">03</span><h3>Route</h3><p>Find a trusted local home where your tech can keep doing good.</p></article></div></section>
+    <section class="proof-section" id="impact"><div class="proof-card"><div><p class="eyebrow">One sourced number</p><h2>48.2M tonnes were not formally collected in 2022.</h2><p>Calculation: 62M tonnes generated × (1 − 22.3% formally collected) = <strong>48.2M tonnes</strong>.</p><a href="https://ewastemonitor.info/the-global-e-waste-monitor-2024/" target="_blank" rel="noopener">Source: Global E-waste Monitor 2024 ↗</a></div><div class="proof-number"><strong>48.2M</strong><span>tonnes outside formal collection</span></div></div><div class="scale-card"><p class="eyebrow">What success looks like</p><h2>At scale, route 1% of that gap.</h2><strong>482,000 tonnes</strong><p>kept in repair, resale, or verified recycling pathways instead of being lost from the circular economy.</p></div></section>
+    <section class="history-section" id="history"><div class="section-heading"><p class="eyebrow">Your local workspace</p><h2>Scans and listings stay with you.</h2></div><div class="history-grid"><div class="history-panel"><div class="panel-heading"><h3>Scan history</h3><button class="small-action" id="clearHistory" type="button">Clear</button></div><div id="historyList"><p class="empty-state">Your completed scans will appear here.</p></div></div><div class="history-panel"><div class="panel-heading"><h3>Marketplace board</h3><span class="live-status"><i></i> This browser</span></div><div id="marketplaceList"><p class="empty-state">Publish a parts listing to see it here.</p></div></div></div></section>
+    <section class="feature-section" id="workspace"><div class="section-heading"><p class="eyebrow">More ways to take action</p><h2>Your circular tech workspace.</h2><p>Track the device journey, earn recognition, and stay connected to local reuse.</p></div><div class="profile-dashboard" id="profileDashboard"></div><div class="feature-grid">
+      <article class="feature-card"><span class="feature-icon">$</span><h3>Estimated component value</h3><p>Review the current salvage estimate for every scanned device.</p><button class="feature-action" data-feature="value" type="button">View estimate</button></article>
+      <article class="feature-card"><span class="feature-icon">✓</span><h3>Repair instructions</h3><p>Get a practical next step before you disassemble or discard.</p><button class="feature-action" data-feature="repair" type="button">Open guide</button></article>
+      <article class="feature-card"><span class="feature-icon">↗</span><h3>Parts marketplace</h3><p>List useful components and let nearby makers claim them.</p><button class="feature-action" data-feature="marketplace" type="button">Open marketplace</button></article>
+      <article class="feature-card"><span class="feature-icon">⌖</span><h3>Pickup request</h3><p>Request a local collection for devices you cannot transport.</p><button class="feature-action" data-feature="pickup" type="button">Request pickup</button></article>
+      <article class="feature-card"><span class="feature-icon">♧</span><h3>Environmental impact</h3><p>See the estimated waste and emissions avoided by this action.</p><button class="feature-action" data-feature="environment" type="button">See my impact</button></article>
+      <article class="feature-card"><span class="feature-icon">▣</span><h3>Data-wipe checklist</h3><p>Complete the privacy steps before a device leaves your hands.</p><button class="feature-action" data-feature="wipe" type="button">Start checklist</button></article>
+      <article class="feature-card"><span class="feature-icon">◎</span><h3>Community</h3><p>Share repair tips and local reuse wins with other members.</p><button class="feature-action" data-feature="community" type="button">Join community</button></article>
+      <article class="feature-card"><span class="feature-icon">★</span><h3>Rewards and gamification</h3><p>Earn points, badges, and progress for every circular action.</p><button class="feature-action" data-feature="rewards" type="button">View rewards</button></article>
+      <article class="feature-card"><span class="feature-icon">?</span><h3>AI chatbot</h3><p>Ask for guidance about repair, reuse, safety, or recycling.</p><button class="feature-action" data-feature="chatbot" type="button">Ask Second Life</button></article>
+      <article class="feature-card"><span class="feature-icon">▤</span><h3>Admin dashboard</h3><p>Monitor scans, pickups, listings, and community activity.</p><button class="feature-action" data-feature="admin" type="button">View dashboard</button></article>
+      <article class="feature-card"><span class="feature-icon">↺</span><h3>Full traceability</h3><p>Follow each device from scan to repair, reuse, or recycling.</p><button class="feature-action" data-feature="trace" type="button">View timeline</button></article>
+      <article class="feature-card"><span class="feature-icon">!</span><h3>Notifications</h3><p>Choose which pickup, listing, and impact updates you receive.</p><button class="feature-action" data-feature="notifications" type="button">Manage alerts</button></article>
+      <article class="feature-card"><span class="feature-icon">●</span><h3>User profiles</h3><p>Save your preferences and your circular contribution history.</p><button class="feature-action" data-feature="profile" type="button">Open profile</button></article>
+    </div></section>
+    <section class="pitch-section" id="about"><p class="eyebrow">The case for Second Life</p><div class="pitch-grid"><article><span>01 / PROBLEM</span><h3>Waste looks like waste when nobody knows what is inside.</h3></article><article><span>02 / WHY NOW</span><h3>62M tonnes arrived in 2022. Devices are becoming harder to repair and easier to discard.</h3></article><article><span>03 / WHY US</span><h3>We match parts to their next local home: reuse before recycle.</h3></article><article><span>04 / IMPACT</span><h3>Success is measured in components routed, tonnes diverted, and repair income created.</h3></article></div></section>
+  </main>
+
+  <dialog class="action-dialog" id="actionDialog">
+    <button class="dialog-close" id="dialogClose" type="button" aria-label="Close dialog">×</button>
+    <div id="dialogContent"></div>
+  </dialog>
+  <footer><a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span><span>second<span class="brand-accent">life</span></span></a><span>Made for a more circular tomorrow.</span><span>© 2024 Second Life</span></footer>
+  <script src="app.js"></script>
+</body>
+</html>
